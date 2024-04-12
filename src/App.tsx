@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
+import { Fragment, useCallback, useEffect, useState } from "react"
 import { InputSelect } from "./components/InputSelect"
 import { Instructions } from "./components/Instructions"
 import { Transactions } from "./components/Transactions"
@@ -30,7 +30,7 @@ export function App() {
       else
         setAllTransactions((prevTransactions) => [...prevTransactions, ...transactionsByEmployee])
     }
-  }, [paginatedTransactions, transactionsByEmployee])
+  }, [emp, isClick, paginatedTransactions, transactionsByEmployee])
 
   const handleViewMore = () => {
     setClick(true)
@@ -41,7 +41,7 @@ export function App() {
     paginatedTransactionsUtils.invalidateData()
     transactionsByEmployeeUtils.invalidateData()
     await paginatedTransactionsUtils.fetchAll()
-  }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
+  }, [paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
@@ -51,18 +51,18 @@ export function App() {
     [paginatedTransactionsUtils, transactionsByEmployeeUtils]
   )
 
+  const loadAllEmployees = useCallback(async () => {
+    await employeeUtils.fetchAll()
+    setIsLoadingEmployees(false)
+  }, [employeeUtils])
+
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
       setIsLoadingEmployees(true)
       loadAllEmployees()
       loadAllTransactions()
     }
-  }, [employeeUtils.loading, employees, loadAllTransactions])
-  
-  const loadAllEmployees = async () => {
-    await employeeUtils.fetchAll()
-    setIsLoadingEmployees(false)
-  }
+  }, [employeeUtils.loading, employees, loadAllEmployees, loadAllTransactions])
 
   const handleSelectChange = async (newValue: Employee | null) => {
     setClick(false)
