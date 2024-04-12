@@ -12,17 +12,12 @@ export function App() {
   const { data: employees, ...employeeUtils } = useEmployees()
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
-
-  const [newlyApproved, setNewlyApproved] = useState<any>({})
+  const [recentlyApproved, setRecentlyApproved] = useState<any>({})
 
   const transactions = useMemo(
     () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
     [paginatedTransactions, transactionsByEmployee]
   )
-
-  const loadAllEmployees = useCallback(async () => {
-    await employeeUtils.fetchAll()
-  }, [employeeUtils])
 
   const loadAllTransactions = useCallback(async () => {
     transactionsByEmployeeUtils.invalidateData()
@@ -42,10 +37,14 @@ export function App() {
   )
 
   const handleApproved = (id: string, value: boolean) => {
-    setNewlyApproved((prev: any): any => {
-      return { ...prev, [id]: value }
+    setRecentlyApproved((previousValue: any): any => {
+      return { ...previousValue, [id]: value }
     })
   }
+
+  const loadAllEmployees = useCallback(async () => {
+    await employeeUtils.fetchAll()
+  }, [employeeUtils])
 
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
@@ -75,7 +74,6 @@ export function App() {
             if (newValue === null) {
               return
             }
-
             await loadTransactionsByEmployee(newValue.id)
           }}
         />
@@ -83,25 +81,18 @@ export function App() {
         <div className="RampBreak--l" />
 
         <div className="RampGrid">
-          <Transactions
-            transactions={transactions}
-            setApproved={handleApproved}
-            newlyApproved={newlyApproved}
-          />
-
-          {transactions !== null &&
-            paginatedTransactions?.nextPage !== null &&
-            !transactionsByEmployee && (
-              <button
-                className="RampButton"
-                disabled={paginatedTransactionsUtils.loading}
-                onClick={async () => {
-                  await loadAllTransactions()
-                }}
-              >
-                View More
-              </button>
-            )}
+          <Transactions transactions={transactions} setApproved={handleApproved} recentlyApproved={recentlyApproved} />
+          {transactions && paginatedTransactions?.nextPage && !transactionsByEmployee && (
+            <button
+              className="RampButton"
+              disabled={paginatedTransactionsUtils.loading}
+              onClick={async () => {
+                await loadAllTransactions()
+              }}
+            >
+              View More
+            </button>
+          )}
         </div>
       </main>
     </Fragment>
