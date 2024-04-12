@@ -15,7 +15,7 @@ export function App() {
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false)
   const [isClick, setClick] = useState(false)
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
-  const [emp, setEmp] = useState(false)
+  const [emp, setEmp] = useState("")
 
   useEffect(() => {
     if (paginatedTransactions) {
@@ -32,10 +32,12 @@ export function App() {
     }
   }, [emp, isClick, paginatedTransactions, transactionsByEmployee])
 
-  const handleViewMore = () => {
+  const handleViewMore = async () => {
     setClick(true)
-    if (!emp)
-      loadAllTransactions()
+    if (emp !== "")
+      await loadTransactionsByEmployee(emp)
+    else
+      await loadAllTransactions()
   }
   const loadAllTransactions = useCallback(async () => {
     paginatedTransactionsUtils.invalidateData()
@@ -67,13 +69,13 @@ export function App() {
   const handleSelectChange = async (newValue: Employee | null) => {
     setClick(false)
     if (newValue === null) {
-      setEmp(false)
+      setEmp("")
       return
     } else if (newValue && newValue.id === "") {
-      setEmp(false)
+      setEmp("")
       await loadAllTransactions()
     } else {
-      setEmp(true)
+      setEmp(newValue.id)
       await loadTransactionsByEmployee(newValue.id)
     }
   }
@@ -103,7 +105,7 @@ export function App() {
         <div className="RampGrid">
           <Transactions transactions={allTransactions} />
 
-          {allTransactions && (
+          {allTransactions && emp === "" && (paginatedTransactions ? (paginatedTransactions.data.length == 5 ? true : false) : true) && (
             <button
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}
