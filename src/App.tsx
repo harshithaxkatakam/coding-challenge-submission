@@ -12,7 +12,7 @@ export function App() {
   const { data: employees, ...employeeUtils } = useEmployees()
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false)
   const [isClick, setClick] = useState(false)
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
   const [emp, setEmp] = useState(false)
@@ -38,13 +38,9 @@ export function App() {
       loadAllTransactions()
   }
   const loadAllTransactions = useCallback(async () => {
-    setIsLoading(true)
     paginatedTransactionsUtils.invalidateData()
     transactionsByEmployeeUtils.invalidateData()
-
-    await employeeUtils.fetchAll()
     await paginatedTransactionsUtils.fetchAll()
-    setIsLoading(false)
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
@@ -57,9 +53,16 @@ export function App() {
 
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
+      setIsLoadingEmployees(true)
+      loadAllEmployees()
       loadAllTransactions()
     }
   }, [employeeUtils.loading, employees, loadAllTransactions])
+  
+  const loadAllEmployees = async () => {
+    await employeeUtils.fetchAll()
+    setIsLoadingEmployees(false)
+  }
 
   const handleSelectChange = async (newValue: Employee | null) => {
     setClick(false)
@@ -83,7 +86,7 @@ export function App() {
         <hr className="RampBreak--l" />
 
         <InputSelect<Employee>
-          isLoading={isLoading}
+          isLoading={isLoadingEmployees}
           defaultValue={EMPTY_EMPLOYEE}
           items={employees === null ? [] : [EMPTY_EMPLOYEE, ...employees]}
           label="Filter by employee"
