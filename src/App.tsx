@@ -16,6 +16,7 @@ export function App() {
   const [isClick, setClick] = useState(false)
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([])
   const [emp, setEmp] = useState("")
+  const [newlyApproved, setNewlyApproved] = useState<any>({})
 
   useEffect(() => {
     if (paginatedTransactions) {
@@ -80,6 +81,12 @@ export function App() {
     }
   }
 
+  const handleApproved = (id: string, value: boolean) => {
+    setNewlyApproved((prev: any): any => {
+      return { ...prev, [id]: value }
+    })
+  }
+
   return (
     <Fragment>
       <main className="MainContainer">
@@ -103,8 +110,7 @@ export function App() {
         <div className="RampBreak--l" />
 
         <div className="RampGrid">
-          <Transactions transactions={allTransactions} />
-
+          <Transactions transactions={allTransactions} setApproved={handleApproved} newlyApproved={newlyApproved} />
           {allTransactions && emp === "" && (paginatedTransactions ? (paginatedTransactions.data.length == 5 ? true : false) : true) && (
             <button
               className="RampButton"
