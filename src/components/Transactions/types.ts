@@ -9,7 +9,7 @@ export type SetTransactionApprovalFunction = (params: {
 type TransactionsProps = {
   transactions: Transaction[] | null
   setApproved: (id: string, value: boolean) => void
-  newlyApproved: any
+  recentlyApproved: any
 }
 
 type TransactionPaneProps = {
@@ -17,7 +17,7 @@ type TransactionPaneProps = {
   loading: boolean
   approved?: boolean
   setTransactionApproval: SetTransactionApprovalFunction
-  newlyApproved: any
+  recentlyApproved: any
 }
 
 export type TransactionsComponent = FunctionComponent<TransactionsProps>
